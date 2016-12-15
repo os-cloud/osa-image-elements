@@ -1,0 +1,23 @@
+---
+- name: Run role
+  hosts: lxc_container_artifact_hosts
+  gather_facts: True
+  pre_tasks:
+    - name: Set dev mode fact
+      set_fact: '{{ item.key }}="{{ item.value }}"'
+      with_dict: "{{ dev_mode_vars }}"
+      when: dev_mode | bool
+      tags:
+        - always
+  roles:
+    - role: "{{ role_name }}"
+  vars:
+    image_name: "{{ role_name | replace('os_', '') }}"
+    dev_mode: false
+    dev_mode_vars:
+      pip_lock_to_internal_repo: False
+      '{{ image_name }}_developer_mode': true
+      pip_install_upper_constraints: "{{ upper_constraints }}"
+
+  tags:
+    - role_run
